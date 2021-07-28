@@ -18,6 +18,5 @@ def clock():
         hour = 0
         day += 1
 
-def attendance(intersection_id, agent_id):
+def attendance(crossRoad_id, nationalCode):
     pass
-

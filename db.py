@@ -1,4 +1,4 @@
-from dataStructures import Hashtable
+from dataStructures import CloseHashtable
 
 class Agent:
     def __init__(self, ncode, name, fname):
