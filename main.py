@@ -1,5 +1,5 @@
 # by Esmail :)
-from ui import main
+from app import main
 import tkinter
 import app
 from typing import Dict, Union, Callable, TypeVar, Generic, List

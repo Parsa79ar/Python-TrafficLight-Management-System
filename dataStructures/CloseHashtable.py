@@ -3,7 +3,7 @@ class Node:
         self.key = key
         self.value = value
 
-class HashTable():
+class HashTable:
     def __init__(self, size=10):        
         self.num_elements = 0
         self.data = [0] * size
@@ -97,32 +97,32 @@ class HashTable():
                 return "Hash key does not exist"
 
 
-our_data = ((12, "stefan", "last name", 1000), (3, "parsa", "last name", 1000))
+# our_data = ((12, "stefan", "last name", 1000), (3, "parsa", "last name", 1000))
 
-our_hash_table = HashTable()
-our_hash_table.insert(12, "parsa")
-our_hash_table.insert(13, "mamad1")
-our_hash_table.insert(14, "mamad2")
-our_hash_table.insert(15, "mamad3")
-our_hash_table.insert(16, "mamad4")
-our_hash_table.insert(1, "mamad5")
-our_hash_table.insert(5, "mamad6")
-our_hash_table.insert(105, "mamad007")
+# our_hash_table = HashTable()
+# our_hash_table.insert(12, "parsa")
+# our_hash_table.insert(13, "mamad1")
+# our_hash_table.insert(14, "mamad2")
+# our_hash_table.insert(15, "mamad3")
+# our_hash_table.insert(16, "mamad4")
+# our_hash_table.insert(1, "mamad5")
+# our_hash_table.insert(5, "mamad6")
+# our_hash_table.insert(105, "mamad007")
 
-print("== Insert data ==")
-print(our_hash_table.data)
-print(our_hash_table.num_elements)
-print(our_hash_table.size)
+# print("== Insert data ==")
+# print(our_hash_table.data)
+# print(our_hash_table.num_elements)
+# print(our_hash_table.size)
 
-print("==Get data==")
-print(our_hash_table.get(12))
-print(our_hash_table.get(13))
+# print("==Get data==")
+# print(our_hash_table.get(12))
+# print(our_hash_table.get(13))
 
-print("== Remove data==")
-our_hash_table.remove(13)
-our_hash_table.remove(5)
-our_hash_table.remove(16)
-our_hash_table.remove(105)
-print(our_hash_table.data)
-print(our_hash_table.num_elements)
-print(our_hash_table.size)
+# print("== Remove data==")
+# our_hash_table.remove(13)
+# our_hash_table.remove(5)
+# our_hash_table.remove(16)
+# our_hash_table.remove(105)
+# print(our_hash_table.data)
+# print(our_hash_table.num_elements)
+# print(our_hash_table.size)
