@@ -80,6 +80,13 @@ class HashTable:
             elif self.data[hash_index] == 0:
                 return "Hash key does not exist"
 
+
+    def travers(self):
+        for d in self.data:
+            if d != 0:
+                if d != "deleted":
+                    yield d
+
     def remove(self, key):
         i = 0
         while True:
@@ -120,9 +127,9 @@ class HashTable:
 
 # print("== Remove data==")
 # our_hash_table.remove(13)
-# our_hash_table.remove(5)
-# our_hash_table.remove(16)
-# our_hash_table.remove(105)
 # print(our_hash_table.data)
 # print(our_hash_table.num_elements)
 # print(our_hash_table.size)
+# print("-----------------------------")
+# for lm in our_hash_table.travers():
+#     print(lm)

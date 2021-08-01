@@ -502,7 +502,7 @@ if __name__ == '__main__':
                           speed_setter_callback=sim.clock_setter,
                           intersections=list(sim.intersections.values()),
                           clock_number_getter=lambda: sim.time)
-            panel.attributes('-topmost', True)
+            # panel.attributes('-topmost', True)
             sim.set_new_intersection_callback(panel.add_intersection)
             _console.set_callback(panel.add_to_console)
             app.init(sim.light, sim.sms)

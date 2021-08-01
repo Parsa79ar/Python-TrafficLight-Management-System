@@ -20,13 +20,14 @@ class CrossRoads:
 
     def searchCrossRoad(self, TL_id):
         print(self.TLlst.get(TL_id).value.name)
-        
 
+    def traversCrossRoads(self):
+        yield from self.TLlst.travers() 
+     
 
-
-test = CrossRoads()
-test.newCrossRoad(2, "zand", 4, "custom", "green", 20)
-test.searchCrossRoad(2)
+# test = CrossRoads()
+# test.newCrossRoad(2, "zand", 41, "custom", "green", 20)
+# test.searchCrossRoad(2)
 
 
 
