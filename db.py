@@ -1,20 +1,26 @@
 from dataStructures import CloseHashtable
 
 class CrossRoad:
-    def __init__(self, TL_id, name, passingCars, TL_mode, TL_currentStatus, reverseCounter):
+    def __init__(self, TL_id, name, NS_passingCars, EW_passingCars, TL_mode, NS_light, EW_light, NS_timer, EW_timer, NS_time, EW_time):
         self.TL_id = TL_id
         self.name = name
-        self.passingCars = passingCars
+        self.NS_passingCars = NS_passingCars
+        self.EW_passingCars = EW_passingCars
         self.TL_mode = TL_mode
-        self.TL_currentStatus = TL_currentStatus
-        self.reverseCounter = reverseCounter
+        self.NS_light = NS_light
+        self.EW_light = EW_light
+        self.NS_timer = NS_timer
+        self.EW_timer = EW_timer
+        self.NS_time = NS_time
+        self.EW_time = EW_time
 
 class CrossRoads:
     def __init__(self):
         self.TLlst = CloseHashtable.HashTable()
 
-    def newCrossRoad(self, TL_id, name, passingCars, TL_mode, TL_currentStatus, reverseCounter):
-        temp = CrossRoad(TL_id, name, passingCars, TL_mode, TL_currentStatus, reverseCounter)
+    def newCrossRoad(self, TL_id, name):
+        # 1 = green auto - 0 = custom red
+        temp = CrossRoad(TL_id, name, 5, 10, 1, 1, 0, 30, 30, 30, 30)
         self.TLlst.insert(temp.TL_id, temp)
         print(self.TLlst.data)
 
@@ -24,10 +30,6 @@ class CrossRoads:
     def traversCrossRoads(self):
         yield from self.TLlst.travers() 
      
-
-# test = CrossRoads()
-# test.newCrossRoad(2, "zand", 41, "custom", "green", 20)
-# test.searchCrossRoad(2)
 
 
 
