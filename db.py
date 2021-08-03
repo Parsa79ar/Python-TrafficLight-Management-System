@@ -1,7 +1,7 @@
 from dataStructures import CloseHashtable
 
 class CrossRoad:
-    def __init__(self, TL_id, name, NS_passingCars, EW_passingCars, TL_mode, NS_light, EW_light, NS_timer, EW_timer, NS_time, EW_time):
+    def __init__(self, TL_id, name, NS_passingCars, EW_passingCars, TL_mode, NS_light, EW_light, NS_timer, EW_timer, NS_time, EW_time, NS, EW):
         self.TL_id = TL_id
         self.name = name
         self.NS_passingCars = NS_passingCars
@@ -13,6 +13,8 @@ class CrossRoad:
         self.EW_timer = EW_timer
         self.NS_time = NS_time
         self.EW_time = EW_time
+        self.NS = NS
+        self.EW = EW
 
 class CrossRoads:
     def __init__(self):
@@ -20,12 +22,12 @@ class CrossRoads:
 
     def newCrossRoad(self, TL_id, name):
         # 1 = green auto - 0 = custom red
-        temp = CrossRoad(TL_id, name, 5, 10, 1, 1, 0, 30, 30, 30, 30)
+        temp = CrossRoad(TL_id, name, 5, 10, 1, 1, 0, 10, 10, 10, 10, 1, 0)
         self.TLlst.insert(temp.TL_id, temp)
         print(self.TLlst.data)
 
     def searchCrossRoad(self, TL_id):
-        print(self.TLlst.get(TL_id).value.name)
+        return self.TLlst.get(TL_id)
 
     def traversCrossRoads(self):
         yield from self.TLlst.travers() 

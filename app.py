@@ -5,7 +5,7 @@ from tkinter import messagebox
 import db
 
 day = hour = minute = second = 0
-tmpLight = tmpSMS = None
+tmpLight = tmpSMS = NS_light_color = EW_light_color  =  None
 crossRoad_id = 0
 crossRoads = db.CrossRoads()
 
@@ -35,33 +35,41 @@ def attendance(crossRoad_id, nationalCode):
 def setLight():
     global crossRoads
     for cr in crossRoads.traversCrossRoads():
-        if cr.value.NS_light == 1:
-            if cr.value.NS_timer == 0:
-                # TL_id - NS = 0 or EW = 1 - red chnage to 1 and green change to 0
-                passingCars = tmpLight(cr.key, 0, 1)
-                if cr.value.TL_mode == 1:
-                    if passingCars >= (2 * cr.value.NS_time):
-                        cr.value.NS_time = 2 * cr.value.NS_time
-                cr.value.NS_timer = cr.value.NS_time
-                tmpLight(cr.key, 1, 0)
-                cr.value.NS_light = 0
-                cr.value.EW_light = 1
-            else:    
-                cr.value.NS_timer -= 1
+        if cr.value.NS == 1:
+            if cr.value.NS_timer <= 0:
+                if cr.value.NS_timer == 0:
+                    # TL_id - NS = 0 or EW = 1 - red chnage to 1 and green change to 0
+                    passingCars = tmpLight(cr.key, 0, 1)
+                    if cr.value.TL_mode == 1:
+                        if passingCars >= (2 * cr.value.NS_time):
+                            cr.value.NS_time = 2 * cr.value.NS_time
+                    cr.value.NS_light = 0
+                if cr.value.NS_timer == -3:
+                    cr.value.NS = 0
+                    cr.value.EW = 1
+                    cr.value.EW_light = 1
+                    cr.value.NS_timer = cr.value.NS_time
+                    tmpLight(cr.key, 1, 0)
+                    continue    
+            cr.value.NS_timer -= 1
 
-        elif cr.value.EW_light == 1:
-            if cr.value.EW_timer == 0:
-                # TL_id - NS = 0 or EW = 1 - red chnage to 1 and green change to 0
-                passingCars = tmpLight(cr.key, 0, 1)
-                if cr.value.TL_mode == 1:
-                    if passingCars >= (2 * cr.value.EW_time):
-                        cr.value.EW_time = 2 * cr.value.EW_time
-                cr.value.EW_timer = cr.value.EW_time
-                tmpLight(cr.key, 1, 0)
-                cr.value.EW_light = 0
-                cr.value.NS_light = 1
-            else:    
-                cr.value.EW_timer -= 1
+        elif cr.value.EW == 1:
+            if cr.value.EW_timer <= 0:
+                if cr.value.EW_timer == 0:
+                    # TL_id - NS = 0 or EW = 1 - red chnage to 1 and green change to 0
+                    passingCars = tmpLight(cr.key, 1, 1)
+                    if cr.value.TL_mode == 1:
+                        if passingCars >= (2 * cr.value.EW_time):
+                            cr.value.EW_time = 2 * cr.value.EW_time
+                    cr.value.EW_light = 0
+                if cr.value.EW_timer == -3:
+                    cr.value.NS = 1
+                    cr.value.EW = 0
+                    cr.value.NS_light = 1
+                    cr.value.EW_timer = cr.value.EW_time
+                    tmpLight(cr.key, 0, 0)
+                    continue    
+            cr.value.EW_timer -= 1
 
 
 
@@ -151,26 +159,30 @@ class CrossRoadUi(tkinter.Toplevel):
         self.ent.pack(side=tkinter.LEFT, padx=6)
         self.btn = tkinter.Button(self.wrapper2, text="جست و جو", command=self.search)
         self.btn.pack(side=tkinter.LEFT, padx=6)
-        self.cbtn = tkinter.Button(self.wrapper2, text="Refresh", command=self.clear)
-        self.cbtn.pack(side=tkinter.LEFT, padx=6)
 
         # User Data Section
         self.lbl1 = tkinter.Label(self.wrapper3, text="چهارراه ID", state="disabled")
         self.lbl1.grid(row=0, column=0, padx=5, pady=3)
-        self.ent1 = tkinter.Entry(self.wrapper3, state="disabled")
-        self.ent1.grid(row=0, column=1, padx=5, pady=3)
-
+        self.lbl1_value = tkinter.Label(self.wrapper3, text=crossRoad_id, state="disabled")
+        self.lbl1_value.grid(row=0, column=1, padx=2, pady=3)
+    
         self.lbl2 = tkinter.Label(self.wrapper3, text="نام")
         self.lbl2.grid(row=1, column=0, padx=5, pady=3)
         self.ent2 = tkinter.Entry(self.wrapper3)
         self.ent2.grid(row=1, column=1, padx=5, pady=3)
 
-        self.up_btn = tkinter.Button(self.wrapper3, text="Update", command=self.update_crossRoad)
-        self.add_btn = tkinter.Button(self.wrapper3, text="Add New", command=self.add_crossRoad)
-        self.delete_btn = tkinter.Button(self.wrapper3, text="Delete", command=self.delete_crossRoad)
-        self.up_btn.grid(row=4, column=0, padx=5, pady=3)
-        self.add_btn.grid(row=4, column=1, padx=5, pady=3)
-        self.delete_btn.grid(row=4, column=2, padx=5, pady=3)
+        self.add_btn = tkinter.Button(self.wrapper3, text="ثبت چهارراه", command=self.add_crossRoad, padx=10, pady=5)
+        self.up_btn = tkinter.Button(self.wrapper3, text="آپدیت چهارراه", command=self.update_crossRoad, padx=5, pady=5)
+        self.auto_mode_btn = tkinter.Button(self.wrapper3, text="حالت اتوماتیک", command=self.auto_mode, padx=5, pady=5)
+        self.custom_mode_btn = tkinter.Button(self.wrapper3, text="حالت دستی", command=self.custom_mode, padx=12, pady=5)
+        self.mode_lbl = tkinter.Label(self.wrapper3, text="حالت چهارراه : ", state="disabled")
+        self.mode_lbl.grid(row=0, column=4, padx=5, pady=3)
+        self.mode_lbl_value = tkinter.Label(self.wrapper3, text=currentMode, state="disabled")
+        self.mode_lbl_value.grid(row=0, column=5, padx=5, pady=3)
+        self.add_btn.grid(row=1, column=3, padx=10, pady=5)
+        self.up_btn.grid(row=2, column=3, padx=10, pady=5)
+        self.auto_mode_btn.grid(row=1, column=4, padx=20, pady=5)
+        self.custom_mode_btn.grid(row=2, column=4, padx=20, pady=5)
 
         self.geometry("1330x800")
         self.title("مدیریت چهارراه ها")
@@ -186,21 +198,67 @@ class CrossRoadUi(tkinter.Toplevel):
         crossRoads.newCrossRoad(crossRoad_id, crossRoad_name)
         tmpLight(crossRoad_id, 0, 0)
         crossRoad_id += 1
+        self.lbl1_value.config(text=crossRoad_id)
+        self.ent2.delete(0, "end")
 
 
     def update(self):
         self.trv.delete(*self.trv.get_children())
         for i  in crossRoads.traversCrossRoads():
-            self.trv.insert('', 'end', values=(i.value.TL_id, i.value.name, i.value.NS_passingCars, i.value.EW_passingCars, i.value.TL_mode, i.value.NS_light, i.value.EW_light, i.value.NS_timer, i.value.EW_timer))
+            if i.value.NS_light == 1:
+                NS_light_color = "سبز"
+            elif i.value.NS_light == 0:
+                NS_light_color = "قرمز"
+
+            if i.value.EW_light == 1:
+                EW_light_color = "سبز"
+            elif i.value.EW_light == 0:
+                EW_light_color = "قرمز"
+            
+            if i.value.NS == 1:
+                NS_timer = i.value.NS_timer
+                EW_timer = i.value.NS_timer + 3
+                if NS_timer < 0:
+                    NS_timer = 0
+            elif i.value.EW == 1:
+                EW_timer = i.value.EW_timer
+                NS_timer = i.value.EW_timer + 3
+                if EW_timer < 0:
+                    EW_timer = 0
+
+            self.trv.insert('', 'end', values=(i.value.TL_id, i.value.name, i.value.NS_passingCars, i.value.EW_passingCars, i.value.TL_mode, NS_light_color, EW_light_color, NS_timer, EW_timer))
         self.trv.after(400, self.update)
     
 
     def search(self):
-        q2 = self.ent.get()
-        
-        
-    def clear(self):
-        update()
+        if self.ent.get():
+            self.searchTrv.delete(*self.searchTrv.get_children())
+            TLid = int(self.ent.get())
+            i = crossRoads.searchCrossRoad(TLid)
+            if i:
+                if i.value.NS_light == 1:
+                    NS_light_color = "سبز"
+                elif i.value.NS_light == 0:
+                    NS_light_color = "قرمز"
+
+                if i.value.EW_light == 1:
+                    EW_light_color = "سبز"
+                elif i.value.EW_light == 0:
+                    EW_light_color = "قرمز"
+
+                self.searchTrv.insert('', 'end', values=(i.value.TL_id, i.value.name, i.value.NS_passingCars, i.value.EW_passingCars, i.value.TL_mode, NS_light_color, EW_light_color, i.value.NS_timer, i.value.EW_timer))
+            self.searchTrv.after(400, self.search)
+        else:
+            self.searchTrv.delete(*self.searchTrv.get_children())
+
+
+    def auto_mode():
+        pass
+
+
+    def custom_mode():
+        pass
+
 
     def getrow(self, event):
         rowid = self.trv.identify_row(event.y)
@@ -218,11 +276,6 @@ class CrossRoadUi(tkinter.Toplevel):
         if messagebox.askyesno("Confirm Update?", "Are you sure you want to change this crossRoad?"):
             pass
 
-
-    def delete_crossRoad(self):
-        crossRoad_id = self.ent1.get()
-        if messagebox.askyesno("Confirm Delete?", "Are you sure you want to delete this crossRoad?"):
-            pass
 
 """---------------------------------------
           *  Clock Ui Section  *

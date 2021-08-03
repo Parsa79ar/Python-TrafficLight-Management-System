@@ -78,7 +78,7 @@ class HashTable:
                 else:
                     i += 1
             elif self.data[hash_index] == 0:
-                return "Hash key does not exist"
+                return
 
 
     def travers(self):
