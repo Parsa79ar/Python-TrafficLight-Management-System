@@ -171,14 +171,20 @@ class CrossRoadUi(tkinter.Toplevel):
         self.ent2 = tkinter.Entry(self.wrapper3)
         self.ent2.grid(row=1, column=1, padx=5, pady=3)
 
+        self.lbl3 = tkinter.Label(self.wrapper3, text="زمان شمال-جنوب", state="disabled")
+        self.lbl3.grid(row=2, column=0, padx=5, pady=3)
+        self.ent3 = tkinter.Entry(self.wrapper3, state="disabled")
+        self.ent3.grid(row=2, column=1, padx=5, pady=3)
+
+        self.lbl4 = tkinter.Label(self.wrapper3, text="زمان شرق-غرب", state="disabled")
+        self.lbl4.grid(row=3, column=0, padx=5, pady=3)
+        self.ent4 = tkinter.Entry(self.wrapper3, state="disabled")
+        self.ent4.grid(row=3, column=1, padx=5, pady=3)
+
         self.add_btn = tkinter.Button(self.wrapper3, text="ثبت چهارراه", command=self.add_crossRoad, padx=10, pady=5)
-        self.up_btn = tkinter.Button(self.wrapper3, text="آپدیت چهارراه", command=self.update_crossRoad, padx=5, pady=5)
-        self.auto_mode_btn = tkinter.Button(self.wrapper3, text="حالت اتوماتیک", command=self.auto_mode, padx=5, pady=5)
-        self.custom_mode_btn = tkinter.Button(self.wrapper3, text="حالت دستی", command=self.custom_mode, padx=12, pady=5)
-        self.mode_lbl = tkinter.Label(self.wrapper3, text="حالت چهارراه : ", state="disabled")
-        self.mode_lbl.grid(row=0, column=4, padx=5, pady=3)
-        self.mode_lbl_value = tkinter.Label(self.wrapper3, text=currentMode, state="disabled")
-        self.mode_lbl_value.grid(row=0, column=5, padx=5, pady=3)
+        self.up_btn = tkinter.Button(self.wrapper3, text="آپدیت چهارراه", command=self.update_crossRoad, padx=5, pady=5, state="disabled")
+        self.auto_mode_btn = tkinter.Button(self.wrapper3, text="حالت اتوماتیک", command=self.auto_mode, padx=5, pady=5, state="disabled")
+        self.custom_mode_btn = tkinter.Button(self.wrapper3, text="حالت دستی", command=self.custom_mode, padx=12, pady=5, state="disabled")
         self.add_btn.grid(row=1, column=3, padx=10, pady=5)
         self.up_btn.grid(row=2, column=3, padx=10, pady=5)
         self.auto_mode_btn.grid(row=1, column=4, padx=20, pady=5)
@@ -233,48 +239,79 @@ class CrossRoadUi(tkinter.Toplevel):
     def search(self):
         if self.ent.get():
             self.searchTrv.delete(*self.searchTrv.get_children())
-            TLid = int(self.ent.get())
-            i = crossRoads.searchCrossRoad(TLid)
-            if i:
-                if i.value.NS_light == 1:
-                    NS_light_color = "سبز"
-                elif i.value.NS_light == 0:
-                    NS_light_color = "قرمز"
+            searchValue = self.ent.get()
+            for i in crossRoads.searchCrossRoad(searchValue):
+                if i:
+                    if i.value.NS_light == 1:
+                        NS_light_color = "سبز"
+                    elif i.value.NS_light == 0:
+                        NS_light_color = "قرمز"
 
-                if i.value.EW_light == 1:
-                    EW_light_color = "سبز"
-                elif i.value.EW_light == 0:
-                    EW_light_color = "قرمز"
+                    if i.value.EW_light == 1:
+                        EW_light_color = "سبز"
+                    elif i.value.EW_light == 0:
+                        EW_light_color = "قرمز"
 
-                self.searchTrv.insert('', 'end', values=(i.value.TL_id, i.value.name, i.value.NS_passingCars, i.value.EW_passingCars, i.value.TL_mode, NS_light_color, EW_light_color, i.value.NS_timer, i.value.EW_timer))
-            self.searchTrv.after(400, self.search)
+                    self.searchTrv.insert('', 'end', values=(i.value.TL_id, i.value.name, i.value.NS_passingCars, i.value.EW_passingCars, i.value.TL_mode, NS_light_color, EW_light_color, i.value.NS_timer, i.value.EW_timer))
+                self.searchTrv.after(400, self.search)
         else:
             self.searchTrv.delete(*self.searchTrv.get_children())
 
 
-    def auto_mode():
-        pass
+    def auto_mode(self):
+        select = crossRoads.TLlst.get(int(self.item[0]))
+        if select.value.TL_mode != 1:
+            select.value.TL_mode = 1
 
 
-    def custom_mode():
-        pass
+    def custom_mode(self):
+        self.custom_flag = 1
+        self.lbl3.config(state="normal")
+        self.lbl4.config(state="normal")
+        self.ent3.config(state="normal")
+        self.ent4.config(state="normal")
 
 
     def getrow(self, event):
         rowid = self.trv.identify_row(event.y)
-        item = self.trv.item(trv.focus()) 
-        self.ent1.insert(0, item['values'][0])   
-        self.ent2.insert(0, item['values'][0])   
-        self.ent3.insert(0, item['values'][0])   
-        self.ent4.insert(0, item['values'][0])   
-      
+        self.item = self.trv.item(self.trv.focus(), 'values')
+        if self.item:
+            self.up_btn.config(state="normal")
+            self.add_btn.config(state="disabled")
+            self.lbl1_value.config(text=self.item[0])
+            self.ent2.delete(0, "end")   
+            self.ent2.insert(0, self.item[1])
+            self.auto_mode_btn.config(state="normal")      
+            self.custom_mode_btn.config(state="normal")      
+
 
     def update_crossRoad(self):
+        select = crossRoads.TLlst.get(int(self.item[0]))
         crossRoad_name = self.ent2.get()
-        crossRoad_passingCars = self.ent3.get()
-        crossRoad_TL_mode = self.ent4.get()
+        if self.custom_flag == 1:
+            NS_time = self.ent3.get()
+            EW_time = self.ent4.get()
+        
         if messagebox.askyesno("Confirm Update?", "Are you sure you want to change this crossRoad?"):
-            pass
+            select.value.name = crossRoad_name
+            if self.custom_flag == 1:
+                if select.value.TL_mode != 0:
+                    select.value.TL_mode = 0
+                select.value.NS_time = int(NS_time)
+                select.value.EW_time = int(EW_time)
+                self.ent2.delete(0, "end")
+                self.ent3.delete(0, "end")
+                self.ent4.delete(0, "end")
+                self.ent3.config(state="disabled")
+                self.ent4.config(state="disabled")
+                self.lbl3.config(state="disabled")
+                self.lbl4.config(state="disabled")
+                self.add_btn.config(state="normal")
+                self.up_btn.config(state="disabled")
+                self.lbl1_value.config(text=crossRoad_id)
+                self.custom_mode_btn.config(state="disabled")
+                self.auto_mode_btn.config(state="disabled")
+                
 
 
 """---------------------------------------

@@ -1,4 +1,5 @@
 from dataStructures import CloseHashtable
+import re
 
 class CrossRoad:
     def __init__(self, TL_id, name, NS_passingCars, EW_passingCars, TL_mode, NS_light, EW_light, NS_timer, EW_timer, NS_time, EW_time, NS, EW):
@@ -26,8 +27,17 @@ class CrossRoads:
         self.TLlst.insert(temp.TL_id, temp)
         print(self.TLlst.data)
 
-    def searchCrossRoad(self, TL_id):
-        return self.TLlst.get(TL_id)
+    def searchCrossRoad(self, x):
+        lst = []
+        for elm in self.TLlst.travers():
+            txt = f"{elm.value.TL_id} {elm.value.name}"
+            test = re.search(x, txt)
+            if test:
+                lst.append(elm)
+        return lst
+
+    # def searchCrossRoad(self, TL_id):
+    #     return self.TLlst.get(TL_id)
 
     def traversCrossRoads(self):
         yield from self.TLlst.travers() 
