@@ -8,6 +8,7 @@ day = hour = minute = second = 0
 tmpLight = tmpSMS = NS_light_color = EW_light_color  =  None
 crossRoad_id = 0
 crossRoads = db.CrossRoads()
+agents = db.Agents()
 
 def init(light, sms):
     global tmpLight, tmpSMS
@@ -83,7 +84,7 @@ class MainWindow(tkinter.Tk):
         self.clock = ClockUi(master = self)
         self.clock.grid(row=0, column=0, padx=125, pady=20)
         tkinter.Button(self, text="مدیریت چهارراه ها", padx=20, pady=20, command=self.crossRoadWindow).grid(row=1, column=0, pady=10)
-        tkinter.Button(self, text="مدیریت مامور ها", padx=23, pady=20, command=self.crossRoadWindow).grid(row=2, column=0, pady=10)
+        tkinter.Button(self, text="مدیریت مامور ها", padx=23, pady=20, command=self.agentWindow).grid(row=2, column=0, pady=10)
         self.title("سیستم مدیریت چراغ های راهنمایی")
         self.geometry("350x300")
         self.mainloop()
@@ -91,6 +92,11 @@ class MainWindow(tkinter.Tk):
     def crossRoadWindow(self):
         CrossRoadUi(self)
 
+    def agentWindow(self):
+        AgentUi(self)
+
+
+"""---------- CrossRoad Ui -----------"""
 class CrossRoadUi(tkinter.Toplevel):
     def __init__(self, master, **kwargs):
         super(CrossRoadUi, self).__init__(master, **kwargs)
@@ -195,9 +201,7 @@ class CrossRoadUi(tkinter.Toplevel):
         self.update()
 
 
-    """---------------------------------------
-            *   Ui Methods Section  *
-    ---------------------------------------"""  
+    """---------- CrossRoads Methods Ui -----------"""
     def add_crossRoad(self):
         global crossRoad_id
         crossRoad_name = self.ent2.get()
@@ -205,6 +209,200 @@ class CrossRoadUi(tkinter.Toplevel):
         tmpLight(crossRoad_id, 0, 0)
         crossRoad_id += 1
         self.lbl1_value.config(text=crossRoad_id)
+        self.ent2.delete(0, "end")
+
+
+    def update(self):
+        self.trv.delete(*self.trv.get_children())
+        for i  in crossRoads.traversCrossRoads():
+            if i.value.NS_light == 1:
+                NS_light_color = "سبز"
+            elif i.value.NS_light == 0:
+                NS_light_color = "قرمز"
+
+            if i.value.EW_light == 1:
+                EW_light_color = "سبز"
+            elif i.value.EW_light == 0:
+                EW_light_color = "قرمز"
+            
+            if i.value.NS == 1:
+                NS_timer = i.value.NS_timer
+                EW_timer = i.value.NS_timer + 3
+                if NS_timer < 0:
+                    NS_timer = 0
+            elif i.value.EW == 1:
+                EW_timer = i.value.EW_timer
+                NS_timer = i.value.EW_timer + 3
+                if EW_timer < 0:
+                    EW_timer = 0
+
+            self.trv.insert('', 'end', values=(i.value.TL_id, i.value.name, i.value.NS_passingCars, i.value.EW_passingCars, i.value.TL_mode, NS_light_color, EW_light_color, NS_timer, EW_timer))
+        self.trv.after(400, self.update)
+    
+
+    def search(self):
+        if self.ent.get():
+            self.searchTrv.delete(*self.searchTrv.get_children())
+            searchValue = self.ent.get()
+            for i in crossRoads.searchCrossRoad(searchValue):
+                if i:
+                    if i.value.NS_light == 1:
+                        NS_light_color = "سبز"
+                    elif i.value.NS_light == 0:
+                        NS_light_color = "قرمز"
+
+                    if i.value.EW_light == 1:
+                        EW_light_color = "سبز"
+                    elif i.value.EW_light == 0:
+                        EW_light_color = "قرمز"
+
+                    self.searchTrv.insert('', 'end', values=(i.value.TL_id, i.value.name, i.value.NS_passingCars, i.value.EW_passingCars, i.value.TL_mode, NS_light_color, EW_light_color, i.value.NS_timer, i.value.EW_timer))
+                self.searchTrv.after(400, self.search)
+        else:
+            self.searchTrv.delete(*self.searchTrv.get_children())
+
+
+    def auto_mode(self):
+        select = crossRoads.TLlst.get(int(self.item[0]))
+        if select.value.TL_mode != 1:
+            select.value.TL_mode = 1
+
+
+    def custom_mode(self):
+        self.custom_flag = 1
+        self.lbl3.config(state="normal")
+        self.lbl4.config(state="normal")
+        self.ent3.config(state="normal")
+        self.ent4.config(state="normal")
+        self.up_btn.config(state="normal")
+
+
+    def getrow(self, event):
+        rowid = self.trv.identify_row(event.y)
+        self.item = self.trv.item(self.trv.focus(), 'values')
+        if self.item:
+            self.add_btn.config(state="disabled")
+            self.lbl1_value.config(text=self.item[0])
+            self.ent2.delete(0, "end")   
+            self.ent2.insert(0, self.item[1])
+            self.auto_mode_btn.config(state="normal")      
+            self.custom_mode_btn.config(state="normal")      
+
+
+    def update_crossRoad(self):
+        select = crossRoads.TLlst.get(int(self.item[0]))
+        crossRoad_name = self.ent2.get()
+        if self.custom_flag == 1:
+            NS_time = self.ent3.get()
+            EW_time = self.ent4.get()
+        
+        if messagebox.askyesno("اعمال تغییرات؟", "آیا از تغییر چهارراه مطمئن هستید؟"):
+            select.value.name = crossRoad_name
+            if self.custom_flag == 1:
+                if select.value.TL_mode != 0:
+                    select.value.TL_mode = 0
+                select.value.NS_time = int(NS_time)
+                select.value.EW_time = int(EW_time)
+                self.ent2.delete(0, "end")
+                self.ent3.delete(0, "end")
+                self.ent4.delete(0, "end")
+                self.ent3.config(state="disabled")
+                self.ent4.config(state="disabled")
+                self.lbl3.config(state="disabled")
+                self.lbl4.config(state="disabled")
+                self.add_btn.config(state="normal")
+                self.up_btn.config(state="disabled")
+                self.lbl1_value.config(text=crossRoad_id)
+                self.custom_mode_btn.config(state="disabled")
+                self.auto_mode_btn.config(state="disabled")
+
+
+"""------------ Agent Ui -------------"""
+class AgentUi(tkinter.Toplevel):
+    def __init__(self, master, **kwargs):
+        super(AgentUi, self).__init__(master, **kwargs)
+
+        # Clock 
+        self.clock = ClockUi(master = self)
+        self.clock.pack(padx=5, pady=5)
+
+        # Label Frames
+        self.wrapper1 = tkinter.LabelFrame(self, text="لیست مامور ها")
+        self.wrapper2 = tkinter.LabelFrame(self, text="جست وجو")
+        self.wrapper3 = tkinter.LabelFrame(self, text="اطلاعات مامور")
+        self.wrapper1.pack(fill="both", expand="yes", padx=20, pady=10)
+        self.wrapper2.pack(fill="both", expand="yes", padx=20, pady=10)
+        self.wrapper3.pack(fill="both", expand="yes", padx=20, pady=10)
+
+        # Agent TreeView
+        self.trv = ttk.Treeview(self.wrapper1, columns=(1,2,3,4,5,6), show="headings", height="10")
+        self.trv.pack()
+        self.trv.column(1, width=150, anchor="center")
+        self.trv.column(2, width=150, anchor="center")
+        self.trv.column(3, width=150, anchor="center")
+        self.trv.column(4, width=150, anchor="center")
+        self.trv.column(5, width=150, anchor="center")
+        self.trv.column(6, width=150, anchor="center")
+        self.trv.heading(1, text="نام")
+        self.trv.heading(2, text="کدملی")
+        self.trv.heading(3, text="زمان غیبت")
+        self.trv.heading(4, text="زمان حضوری")
+        self.trv.heading(5, text="وضعیت کنونی")
+        self.trv.heading(6, text="چهارراه فعلی")
+        self.trv.bind('<Double 1>', self.getrow)
+
+        # Search Section
+        self.searchTrv = ttk.Treeview(self.wrapper2, columns=(1,2,3,4,5,6,7), show="headings", height="2")
+        self.searchTrv.pack()
+        self.searchTrv.column(1, width=150, anchor="center")
+        self.searchTrv.column(2, width=150, anchor="center")
+        self.searchTrv.column(3, width=150, anchor="center")
+        self.searchTrv.column(4, width=150, anchor="center")
+        self.searchTrv.column(5, width=150, anchor="center")
+        self.searchTrv.column(6, width=150, anchor="center")
+        self.searchTrv.column(7, width=150, anchor="center")
+        self.searchTrv.heading(1, text="نام")
+        self.searchTrv.heading(2, text="کدملی")
+        self.searchTrv.heading(3, text="زمان غیبت")
+        self.searchTrv.heading(4, text="زمان حضوری")
+        self.searchTrv.heading(5, text="وضعیت کنونی")
+        self.searchTrv.heading(6, text="چهارراه فعلی")
+        self.searchTrv.heading(7, text="چهارراه بعدی")
+        self.searchTrv.bind('<Double 1>', self.getrow)
+
+        self.lbl = tkinter.Label(self.wrapper2, text="جست و جو")
+        self.lbl.pack(side=tkinter.LEFT, padx=10)
+        self.ent = tkinter.Entry(self.wrapper2)
+        self.ent.pack(side=tkinter.LEFT, padx=6)
+        self.btn = tkinter.Button(self.wrapper2, text="جست و جو", command=self.search)
+        self.btn.pack(side=tkinter.LEFT, padx=6)
+
+        # User Data Section
+        self.lbl1 = tkinter.Label(self.wrapper3, text="نام مامور")
+        self.lbl1.grid(row=0, column=0, padx=5, pady=3)
+        self.ent1 = tkinter.Entry(self.wrapper3)
+        self.ent1.grid(row=0, column=1, padx=5, pady=3)
+    
+        self.lbl2 = tkinter.Label(self.wrapper3, text="کدملی")
+        self.lbl2.grid(row=1, column=0, padx=5, pady=3)
+        self.ent2 = tkinter.Entry(self.wrapper3)
+        self.ent2.grid(row=1, column=1, padx=5, pady=3)
+
+        self.add_btn = tkinter.Button(self.wrapper3, text="ثبت مامور", command=self.add_agent, padx=10, pady=5)
+        self.up_btn = tkinter.Button(self.wrapper3, text="آپدیت مامور", command=self.update_agent, padx=5, pady=5, state="disabled")
+        self.add_btn.grid(row=0, column=3, padx=10, pady=5)
+        self.up_btn.grid(row=1, column=3, padx=10, pady=5)
+
+        self.geometry("1120x800")
+        self.title("مدیریت مامورها")
+        self.update()
+
+    """---------- Agent Methods Ui -----------"""
+    def add_agent(self):
+        agent_name = self.ent1.get()
+        agent_ncode = self.ent2.get()
+        agents.newAgent(name, national_code, absentee_time, attendance_time, status, current_TL, next_TL)
+        self.ent1.delete(0, "end")
         self.ent2.delete(0, "end")
 
 
@@ -285,14 +483,14 @@ class CrossRoadUi(tkinter.Toplevel):
             self.custom_mode_btn.config(state="normal")      
 
 
-    def update_crossRoad(self):
+    def update_agent(self):
         select = crossRoads.TLlst.get(int(self.item[0]))
         crossRoad_name = self.ent2.get()
         if self.custom_flag == 1:
             NS_time = self.ent3.get()
             EW_time = self.ent4.get()
         
-        if messagebox.askyesno("Confirm Update?", "Are you sure you want to change this crossRoad?"):
+        if messagebox.askyesno("اعمال تغییرات؟", "آیا از تغییر چهارراه مطمئن هستید؟"):
             select.value.name = crossRoad_name
             if self.custom_flag == 1:
                 if select.value.TL_mode != 0:
@@ -311,7 +509,6 @@ class CrossRoadUi(tkinter.Toplevel):
                 self.lbl1_value.config(text=crossRoad_id)
                 self.custom_mode_btn.config(state="disabled")
                 self.auto_mode_btn.config(state="disabled")
-                
 
 
 """---------------------------------------

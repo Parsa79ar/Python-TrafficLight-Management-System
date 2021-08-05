@@ -1,6 +1,9 @@
 from dataStructures import CloseHashtable
 import re
 
+"""---------------------------------------
+          *   CrossRoad Section  *
+---------------------------------------"""
 class CrossRoad:
     def __init__(self, TL_id, name, NS_passingCars, EW_passingCars, TL_mode, NS_light, EW_light, NS_timer, EW_timer, NS_time, EW_time, NS, EW):
         self.TL_id = TL_id
@@ -44,26 +47,26 @@ class CrossRoads:
      
 
 
+"""---------------------------------------
+          *   Agent Section  *
+---------------------------------------"""
+class Agent:
+    def __init__(self, name, national_code, absentee_time, attendance_time, status, current_TL, shift):
+        self.name = name
+        self.national_code = national_code
+        self.absentee_time = absentee_time
+        self.attendance_time = attendance_time
+        self.status = status
+        self.current_TL = current_TL
+        self.shift = shift
 
+class Agents:
+    def __init__(self):
+        self.agnlst = CloseHashtable.HashTable()
+        # self.shifts = CloseHashtable.HashTable()
 
-
-# class Agent:
-#     def __init__(self, ncode, name, fname):
-#         self.ncode = ncode
-#         self.name = name
-#         self.fname = fname
-
-# class Agents:
-#     def __init__(self):
-#         self.agnlst = Hashtable.HashTable()
-
-#     def add_agent(self, ncode, name, fname):
-#         temp = Agent(ncode, name, fname)
-#         self.agnlst[str(ncode)] = temp
-
-#     def search_agent(ncode):
-#         return self.agnlst[str(ncode)]
-
-#     def __iter__(self):
-#         for key, value in self.agnlst:
-#             yield key, value
+    def newAgent(self, name, national_code, absentee_time, attendance_time, status, current_TL, next_TL):
+        temp = Agent(self, name, national_code, absentee_time, attendance_time, status, current_TL, next_TL)
+        self.agnlst.insert(temp.national_code, temp)
+        print(self.TLlst.data)
+        
