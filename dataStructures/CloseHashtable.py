@@ -102,34 +102,3 @@ class HashTable:
                 i += 1
             elif self.data[hash_index] == 0:
                 return "Hash key does not exist"
-
-
-# our_data = ((12, "stefan", "last name", 1000), (3, "parsa", "last name", 1000))
-
-# our_hash_table = HashTable()
-# our_hash_table.insert(12, "parsa")
-# our_hash_table.insert(13, "mamad1")
-# our_hash_table.insert(14, "mamad2")
-# our_hash_table.insert(15, "mamad3")
-# our_hash_table.insert(16, "mamad4")
-# our_hash_table.insert(1, "mamad5")
-# our_hash_table.insert(5, "mamad6")
-# our_hash_table.insert(105, "mamad007")
-
-# print("== Insert data ==")
-# print(our_hash_table.data)
-# print(our_hash_table.num_elements)
-# print(our_hash_table.size)
-
-# print("==Get data==")
-# print(our_hash_table.get(12))
-# print(our_hash_table.get(13))
-
-# print("== Remove data==")
-# our_hash_table.remove(13)
-# print(our_hash_table.data)
-# print(our_hash_table.num_elements)
-# print(our_hash_table.size)
-# print("-----------------------------")
-# for lm in our_hash_table.travers():
-#     print(lm)

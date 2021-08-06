@@ -1,4 +1,3 @@
-from time import sleep
 import tkinter
 from tkinter import ttk
 from tkinter import messagebox
@@ -29,7 +28,7 @@ def clock():
         day += 1
     setLight()
 
-def attendance(crossRoad_id, nationalCode):
+def attendance(TL_id, national_code):
     pass
 
 
@@ -352,7 +351,7 @@ class AgentUi(tkinter.Toplevel):
         self.trv.bind('<Double 1>', self.getrow)
 
         # Search Section
-        self.searchTrv = ttk.Treeview(self.wrapper2, columns=(1,2,3,4,5,6,7), show="headings", height="2")
+        self.searchTrv = ttk.Treeview(self.wrapper2, columns=(1,2,3,4,5,6), show="headings", height="2")
         self.searchTrv.pack()
         self.searchTrv.column(1, width=150, anchor="center")
         self.searchTrv.column(2, width=150, anchor="center")
@@ -360,14 +359,12 @@ class AgentUi(tkinter.Toplevel):
         self.searchTrv.column(4, width=150, anchor="center")
         self.searchTrv.column(5, width=150, anchor="center")
         self.searchTrv.column(6, width=150, anchor="center")
-        self.searchTrv.column(7, width=150, anchor="center")
         self.searchTrv.heading(1, text="نام")
         self.searchTrv.heading(2, text="کدملی")
         self.searchTrv.heading(3, text="زمان غیبت")
         self.searchTrv.heading(4, text="زمان حضوری")
         self.searchTrv.heading(5, text="وضعیت کنونی")
         self.searchTrv.heading(6, text="چهارراه فعلی")
-        self.searchTrv.heading(7, text="چهارراه بعدی")
         self.searchTrv.bind('<Double 1>', self.getrow)
 
         self.lbl = tkinter.Label(self.wrapper2, text="جست و جو")
@@ -393,44 +390,23 @@ class AgentUi(tkinter.Toplevel):
         self.add_btn.grid(row=0, column=3, padx=10, pady=5)
         self.up_btn.grid(row=1, column=3, padx=10, pady=5)
 
-        self.geometry("1120x800")
+        self.geometry("970x800")
         self.title("مدیریت مامورها")
         self.update()
 
     """---------- Agent Methods Ui -----------"""
     def add_agent(self):
         agent_name = self.ent1.get()
-        agent_ncode = self.ent2.get()
-        agents.newAgent(name, national_code, absentee_time, attendance_time, status, current_TL, next_TL)
+        agent_ncode = int(self.ent2.get())
+        agents.newAgent(agent_name, agent_ncode)
         self.ent1.delete(0, "end")
         self.ent2.delete(0, "end")
 
 
     def update(self):
         self.trv.delete(*self.trv.get_children())
-        for i  in crossRoads.traversCrossRoads():
-            if i.value.NS_light == 1:
-                NS_light_color = "سبز"
-            elif i.value.NS_light == 0:
-                NS_light_color = "قرمز"
-
-            if i.value.EW_light == 1:
-                EW_light_color = "سبز"
-            elif i.value.EW_light == 0:
-                EW_light_color = "قرمز"
-            
-            if i.value.NS == 1:
-                NS_timer = i.value.NS_timer
-                EW_timer = i.value.NS_timer + 3
-                if NS_timer < 0:
-                    NS_timer = 0
-            elif i.value.EW == 1:
-                EW_timer = i.value.EW_timer
-                NS_timer = i.value.EW_timer + 3
-                if EW_timer < 0:
-                    EW_timer = 0
-
-            self.trv.insert('', 'end', values=(i.value.TL_id, i.value.name, i.value.NS_passingCars, i.value.EW_passingCars, i.value.TL_mode, NS_light_color, EW_light_color, NS_timer, EW_timer))
+        for i  in agents.traversAgents():
+            self.trv.insert('', 'end', values=(i.value.name, i.value.national_code, i.value.absentee_time, i.value.attendance_time, i.value.status, i.value.current_TL))
         self.trv.after(400, self.update)
     
 
@@ -438,36 +414,12 @@ class AgentUi(tkinter.Toplevel):
         if self.ent.get():
             self.searchTrv.delete(*self.searchTrv.get_children())
             searchValue = self.ent.get()
-            for i in crossRoads.searchCrossRoad(searchValue):
+            for i in agents.searchAgent(searchValue):
                 if i:
-                    if i.value.NS_light == 1:
-                        NS_light_color = "سبز"
-                    elif i.value.NS_light == 0:
-                        NS_light_color = "قرمز"
-
-                    if i.value.EW_light == 1:
-                        EW_light_color = "سبز"
-                    elif i.value.EW_light == 0:
-                        EW_light_color = "قرمز"
-
-                    self.searchTrv.insert('', 'end', values=(i.value.TL_id, i.value.name, i.value.NS_passingCars, i.value.EW_passingCars, i.value.TL_mode, NS_light_color, EW_light_color, i.value.NS_timer, i.value.EW_timer))
+                    self.searchTrv.insert('', 'end', values=(i.value.name, i.value.national_code, i.value.absentee_time, i.value.attendance_time, i.value.status, i.value.current_TL))
                 self.searchTrv.after(400, self.search)
         else:
             self.searchTrv.delete(*self.searchTrv.get_children())
-
-
-    def auto_mode(self):
-        select = crossRoads.TLlst.get(int(self.item[0]))
-        if select.value.TL_mode != 1:
-            select.value.TL_mode = 1
-
-
-    def custom_mode(self):
-        self.custom_flag = 1
-        self.lbl3.config(state="normal")
-        self.lbl4.config(state="normal")
-        self.ent3.config(state="normal")
-        self.ent4.config(state="normal")
 
 
     def getrow(self, event):
@@ -476,39 +428,25 @@ class AgentUi(tkinter.Toplevel):
         if self.item:
             self.up_btn.config(state="normal")
             self.add_btn.config(state="disabled")
-            self.lbl1_value.config(text=self.item[0])
+            self.ent1.delete(0, "end")   
+            self.ent1.insert(0, self.item[0])
             self.ent2.delete(0, "end")   
-            self.ent2.insert(0, self.item[1])
-            self.auto_mode_btn.config(state="normal")      
-            self.custom_mode_btn.config(state="normal")      
+            self.ent2.insert(0, self.item[1])     
 
 
     def update_agent(self):
-        select = crossRoads.TLlst.get(int(self.item[0]))
-        crossRoad_name = self.ent2.get()
-        if self.custom_flag == 1:
-            NS_time = self.ent3.get()
-            EW_time = self.ent4.get()
+        select = agents.agnlst.get(int(self.item[1]))
+        agent_name = self.ent1.get()
+        national_code = self.ent2.get()
+
+        select.value.name = agent_name
+        select.value.national_code = int(national_code)
         
         if messagebox.askyesno("اعمال تغییرات؟", "آیا از تغییر چهارراه مطمئن هستید؟"):
-            select.value.name = crossRoad_name
-            if self.custom_flag == 1:
-                if select.value.TL_mode != 0:
-                    select.value.TL_mode = 0
-                select.value.NS_time = int(NS_time)
-                select.value.EW_time = int(EW_time)
+                self.ent1.delete(0, "end")
                 self.ent2.delete(0, "end")
-                self.ent3.delete(0, "end")
-                self.ent4.delete(0, "end")
-                self.ent3.config(state="disabled")
-                self.ent4.config(state="disabled")
-                self.lbl3.config(state="disabled")
-                self.lbl4.config(state="disabled")
                 self.add_btn.config(state="normal")
                 self.up_btn.config(state="disabled")
-                self.lbl1_value.config(text=crossRoad_id)
-                self.custom_mode_btn.config(state="disabled")
-                self.auto_mode_btn.config(state="disabled")
 
 
 """---------------------------------------

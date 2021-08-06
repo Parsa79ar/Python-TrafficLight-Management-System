@@ -1,24 +1,25 @@
 from dataStructures import CloseHashtable
+from dataStructures import MinHeap
 import re
 
 """---------------------------------------
           *   CrossRoad Section  *
 ---------------------------------------"""
 class CrossRoad:
-    def __init__(self, TL_id, name, NS_passingCars, EW_passingCars, TL_mode, NS_light, EW_light, NS_timer, EW_timer, NS_time, EW_time, NS, EW):
+    def __init__(self, TL_id, name):
         self.TL_id = TL_id
         self.name = name
-        self.NS_passingCars = NS_passingCars
-        self.EW_passingCars = EW_passingCars
-        self.TL_mode = TL_mode
-        self.NS_light = NS_light
-        self.EW_light = EW_light
-        self.NS_timer = NS_timer
-        self.EW_timer = EW_timer
-        self.NS_time = NS_time
-        self.EW_time = EW_time
-        self.NS = NS
-        self.EW = EW
+        self.NS_passingCars = 5
+        self.EW_passingCars = 10
+        self.TL_mode = 1
+        self.NS_light = 1
+        self.EW_light = 0
+        self.NS_timer = 10
+        self.EW_timer = 10
+        self.NS_time = 10
+        self.EW_time = 10
+        self.NS = 1
+        self.EW = 0
 
 class CrossRoads:
     def __init__(self):
@@ -26,7 +27,7 @@ class CrossRoads:
 
     def newCrossRoad(self, TL_id, name):
         # 1 = green auto - 0 = custom red
-        temp = CrossRoad(TL_id, name, 5, 10, 1, 1, 0, 10, 10, 10, 10, 1, 0)
+        temp = CrossRoad(TL_id, name)
         self.TLlst.insert(temp.TL_id, temp)
         print(self.TLlst.data)
 
@@ -51,22 +52,32 @@ class CrossRoads:
           *   Agent Section  *
 ---------------------------------------"""
 class Agent:
-    def __init__(self, name, national_code, absentee_time, attendance_time, status, current_TL, shift):
+    def __init__(self, name, national_code):
         self.name = name
         self.national_code = national_code
-        self.absentee_time = absentee_time
-        self.attendance_time = attendance_time
-        self.status = status
-        self.current_TL = current_TL
-        self.shift = shift
+        self.absentee_time = 3600
+        self.attendance_time = 3600
+        self.status = 1    # present => 1 , absentee => 0
+        self.current_TL = 0
+        self.shift = MinHeap.MinHeap()
 
 class Agents:
     def __init__(self):
         self.agnlst = CloseHashtable.HashTable()
-        # self.shifts = CloseHashtable.HashTable()
 
-    def newAgent(self, name, national_code, absentee_time, attendance_time, status, current_TL, next_TL):
-        temp = Agent(self, name, national_code, absentee_time, attendance_time, status, current_TL, next_TL)
+    def newAgent(self, name, national_code):
+        temp = Agent(name, national_code)
         self.agnlst.insert(temp.national_code, temp)
-        print(self.TLlst.data)
-        
+        print(self.agnlst.data)
+
+    def searchAgent(self, x):
+        lst = []
+        for elm in self.agnlst.travers():
+            txt = f"{elm.value.name} {elm.value.national_code}"
+            test = re.search(x, txt)
+            if test:
+                lst.append(elm)
+        return lst
+    
+    def traversAgents(self):
+        yield from self.agnlst.travers()
