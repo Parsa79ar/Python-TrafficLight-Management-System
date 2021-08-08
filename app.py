@@ -27,9 +27,11 @@ def clock():
         hour = 0
         day += 1
     setLight()
+    checkShift()
 
 def attendance(TL_id, national_code):
-    pass
+    print(TL_id)
+    print(national_code)
 
 
 def setLight():
@@ -72,6 +74,13 @@ def setLight():
             cr.value.EW_timer -= 1
 
 
+def checkShift():
+    for i  in agents.traversAgents():
+        if i.value.shift.storage[0]:
+            if (i.value.shift.storage[0].key - 600) == ((hour * 3600) + (minute * 60) + second):
+                agent_nc = i.value.national_code
+                cr_id = i.value.shift.storage[0].value[0]
+                tmpSMS(agent_nc, cr_id)
 
 
 """---------------------------------------
@@ -390,9 +399,60 @@ class AgentUi(tkinter.Toplevel):
         self.add_btn.grid(row=0, column=3, padx=10, pady=5)
         self.up_btn.grid(row=1, column=3, padx=10, pady=5)
 
-        self.geometry("970x800")
+
+        """------------ Shifts Ui -------------"""
+        # Label Frames
+        self.frm = tkinter.Frame(self)
+        self.frm.pack(fill="both", expand="yes")
+        self.wrapper4 = tkinter.LabelFrame(self.frm, text="لیست شیفت ها")
+        self.wrapper5 = tkinter.LabelFrame(self.frm, text="اطلاعات شیفت")
+        self.wrapper4.grid(row=0, column=0, padx=20, pady=10)
+        self.wrapper5.grid(row=0, column=1, padx=20, pady=10)
+
+        # Shifts TreeView
+        self.Shifttrv = ttk.Treeview(self.wrapper4, columns=(1,2,3), show="headings", height="5")
+        self.Shifttrv.grid(padx=30, pady=23)
+        self.Shifttrv.column(1, width=150, anchor="center")
+        self.Shifttrv.column(2, width=150, anchor="center")
+        self.Shifttrv.column(3, width=150, anchor="center")
+        self.Shifttrv.heading(1, text="چهارراه ID")
+        self.Shifttrv.heading(2, text="کد ملی مامور")
+        self.Shifttrv.heading(3, text="زمان شیفت")
+        self.Shifttrv.bind('<Double 1>', self.getrow)
+
+        # Shift Data Section
+        self.slbl1 = tkinter.Label(self.wrapper5, text="چهارراه ID")
+        self.slbl1.grid(row=0, column=0, padx=10, pady=12)
+        self.sent1 = tkinter.Entry(self.wrapper5)
+        self.sent1.grid(row=0, column=1, padx=10, pady=12)
+
+        self.slbl2 = tkinter.Label(self.wrapper5, text="کد ملی مامور")
+        self.slbl2.grid(row=1, column=0, padx=10, pady=12)
+        self.sent2 = tkinter.Entry(self.wrapper5)
+        self.sent2.grid(row=1, column=1, padx=10, pady=12)
+    
+        self.slbl3 = tkinter.Label(self.wrapper5, text="زمان شیفت : ")
+        self.slbl3.grid(row=2, column=0, padx=10)
+        self.slbl4 = tkinter.Label(self.wrapper5, text="ساعت - دقیقه")
+        self.slbl4.grid(row=2, column=1, padx=10)
+        self.slbl5 = tkinter.Label(self.wrapper5, text="ساعت")
+        self.slbl5.grid(row=3, column=0, padx=10, pady=5)
+        self.sent3 = tkinter.Entry(self.wrapper5)
+        self.sent3.grid(row=3, column=1, padx=10, pady=5)
+        self.slbl6 = tkinter.Label(self.wrapper5, text="دقیقه")
+        self.slbl6.grid(row=4, column=0, padx=10, pady=5)
+        self.sent4 = tkinter.Entry(self.wrapper5)
+        self.sent4.grid(row=4, column=1, padx=10, pady=5)
+
+        self.s_add_btn = tkinter.Button(self.wrapper5, text="ثبت شیفت", command=self.add_shift, padx=10, pady=5)
+        self.s_up_btn = tkinter.Button(self.wrapper5, text="آپدیت شیفت", command=self.update_shift, padx=5, pady=5, state="disabled")
+        self.s_add_btn.grid(row=0, column=3, padx=25, pady=5)
+        self.s_up_btn.grid(row=1, column=3, padx=25, pady=5)
+
+        self.geometry("970x920")
         self.title("مدیریت مامورها")
         self.update()
+
 
     """---------- Agent Methods Ui -----------"""
     def add_agent(self):
@@ -442,11 +502,43 @@ class AgentUi(tkinter.Toplevel):
         select.value.name = agent_name
         select.value.national_code = int(national_code)
         
-        if messagebox.askyesno("اعمال تغییرات؟", "آیا از تغییر چهارراه مطمئن هستید؟"):
+        if messagebox.askyesno("اعمال تغییرات؟", "آیا از تغییر مامور مطمئن هستید؟"):
                 self.ent1.delete(0, "end")
                 self.ent2.delete(0, "end")
                 self.add_btn.config(state="normal")
                 self.up_btn.config(state="disabled")
+
+
+    """---------- Shifts Methods Ui -----------"""
+    def add_shift(self):
+        tl_id = int(self.sent1.get())
+        agent_nc = int(self.sent2.get())
+        shift_time_h = int(self.sent3.get())
+        shift_time_m = int(self.sent4.get())
+        
+        get_agent = agents.getAgent(agent_nc)
+        if get_agent:
+            shift_time = (shift_time_h * 3600) + (shift_time_m * 60)
+            start_shift = None
+            values = [tl_id, start_shift]
+            get_agent.value.shift.insert(shift_time, values)
+
+        self.s_update()
+        self.sent1.delete(0, "end")
+        self.sent2.delete(0, "end")
+        self.sent3.delete(0, "end")
+
+
+    def s_update(self):
+        self.Shifttrv.delete(*self.Shifttrv.get_children())
+        for i  in agents.traversAgents():
+            self.Shifttrv.insert('', 'end', values=(i.value.shift.storage[0].value[0], i.value.national_code, i.value.shift.storage[0].key))
+        self.Shifttrv.after(400, self.update)
+
+
+    def update_shift():
+        pass
+
 
 
 """---------------------------------------

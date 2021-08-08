@@ -40,8 +40,8 @@ class CrossRoads:
                 lst.append(elm)
         return lst
 
-    # def searchCrossRoad(self, TL_id):
-    #     return self.TLlst.get(TL_id)
+    def getCrossRoad(self, TL_id):
+        return self.TLlst.get(TL_id)
 
     def traversCrossRoads(self):
         yield from self.TLlst.travers() 
@@ -78,6 +78,9 @@ class Agents:
             if test:
                 lst.append(elm)
         return lst
+
+    def getAgent(self, national_code):
+        return self.agnlst.get(national_code)
     
     def traversAgents(self):
         yield from self.agnlst.travers()
