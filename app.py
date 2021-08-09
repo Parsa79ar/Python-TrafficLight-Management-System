@@ -30,6 +30,17 @@ def clock():
     checkShift()
 
 def attendance(TL_id, national_code):
+    if cr.value.NC_agent != 0:
+        agent = agents.getAgent(cr.value.NC_agent)
+        attend_time = ((hour * 3600) + (minute * 60) + second) - agent.value.shift.storage[0].value[1]
+        agent.value.attendance_time += attend_time
+        agent.value.shift.removeMin()
+    cr = crossRoads.getCrossRoad(TL_id)
+    cr.value.NC_agent = national_code
+    agent = agents.getAgent(national_code)
+    agent.value.shift.storage[0].value[1] = ((hour * 3600) + (minute * 60) + second)
+    agent.value.status = 1
+
     print(TL_id)
     print(national_code)
 
@@ -76,11 +87,13 @@ def setLight():
 
 def checkShift():
     for i  in agents.traversAgents():
-        if i.value.shift.storage[0]:
-            if (i.value.shift.storage[0].key - 600) == ((hour * 3600) + (minute * 60) + second):
-                agent_nc = i.value.national_code
-                cr_id = i.value.shift.storage[0].value[0]
-                tmpSMS(agent_nc, cr_id)
+        if i.value.shift.size > 0:
+            for d in i.value.shift.storage:
+                if d:
+                    if (d.key - 600) == ((hour * 3600) + (minute * 60) + second):
+                        agent_nc = i.value.national_code
+                        cr_id = d.value[0]
+                        tmpSMS(agent_nc, cr_id)
 
 
 """---------------------------------------
@@ -466,6 +479,17 @@ class AgentUi(tkinter.Toplevel):
     def update(self):
         self.trv.delete(*self.trv.get_children())
         for i  in agents.traversAgents():
+            if i.value.absentee_time == None:
+                i.value.absentee_time = "-"
+            if i.value.attendance_time == None:
+                i.value.attendance_time = "-"
+            if i.value.status == 0:
+                i.value.status = "غایب"
+            elif i.value.status == 1:
+                i.value.status = "حاضر"
+            if i.value.current_TL == None:
+                i.value.current_TL = "-"
+
             self.trv.insert('', 'end', values=(i.value.name, i.value.national_code, i.value.absentee_time, i.value.attendance_time, i.value.status, i.value.current_TL))
         self.trv.after(400, self.update)
     
@@ -519,7 +543,7 @@ class AgentUi(tkinter.Toplevel):
         get_agent = agents.getAgent(agent_nc)
         if get_agent:
             shift_time = (shift_time_h * 3600) + (shift_time_m * 60)
-            start_shift = None
+            start_shift = 0
             values = [tl_id, start_shift]
             get_agent.value.shift.insert(shift_time, values)
 
@@ -527,12 +551,15 @@ class AgentUi(tkinter.Toplevel):
         self.sent1.delete(0, "end")
         self.sent2.delete(0, "end")
         self.sent3.delete(0, "end")
+        self.sent4.delete(0, "end")
 
 
     def s_update(self):
         self.Shifttrv.delete(*self.Shifttrv.get_children())
         for i  in agents.traversAgents():
-            self.Shifttrv.insert('', 'end', values=(i.value.shift.storage[0].value[0], i.value.national_code, i.value.shift.storage[0].key))
+            for d in i.value.shift.storage:
+                if d:
+                    self.Shifttrv.insert('', 'end', values=(d.value[0], i.value.national_code, d.key))
         self.Shifttrv.after(400, self.update)
 
 

@@ -20,6 +20,7 @@ class CrossRoad:
         self.EW_time = 10
         self.NS = 1
         self.EW = 0
+        self.NC_agent = 0
 
 class CrossRoads:
     def __init__(self):
@@ -55,10 +56,10 @@ class Agent:
     def __init__(self, name, national_code):
         self.name = name
         self.national_code = national_code
-        self.absentee_time = 3600
-        self.attendance_time = 3600
-        self.status = 1    # present => 1 , absentee => 0
-        self.current_TL = 0
+        self.absentee_time = None
+        self.attendance_time = None
+        self.status = 0    # present => 1 , absentee => 0
+        self.current_TL = None
         self.shift = MinHeap.MinHeap()
 
 class Agents:
