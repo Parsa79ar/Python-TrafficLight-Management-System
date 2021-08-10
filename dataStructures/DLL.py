@@ -31,6 +31,3 @@ class DLL :
             newNode.prev = self.last
             self.last = newNode
         self.len += 1 
-
-    def deleteFirst(self) :
-        pass

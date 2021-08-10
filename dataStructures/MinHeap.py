@@ -9,11 +9,6 @@ class MinHeap:
         self.capacity = capacity
         self.size = 0
 
-    def swap(self, index1, index2):
-        temp = self.storage[index1]
-        self.storage[index1] = self.storage[index2]
-        self.storage[index2] = temp
-
     def insert(self, key, value):
         newNode = Node(key, value)
         if self.size == self.capacity:
@@ -23,13 +18,17 @@ class MinHeap:
         self.size += 1
         self.heapifyUp(self.size - 1)
         
-
     def heapifyUp(self, index):
         if self.__getParentIndex(index) >= 0 and self.storage[self.__getParentIndex(index)].key > self.storage[index].key:
             self.swap(self.__getParentIndex(index), index)
             self.heapifyUp(self.__getParentIndex(index))
         print("--------up--------")
         print(self.storage)
+
+    def swap(self, index1, index2):
+        temp = self.storage[index1]
+        self.storage[index1] = self.storage[index2]
+        self.storage[index2] = temp
 
     def removeMin(self):
         if self.size == 0:

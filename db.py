@@ -56,8 +56,8 @@ class Agent:
     def __init__(self, name, national_code):
         self.name = name
         self.national_code = national_code
-        self.absentee_time = None
-        self.attendance_time = None
+        self.absentee_time = 0
+        self.attendance_time = 0
         self.status = 0    # present => 1 , absentee => 0
         self.current_TL = None
         self.shift = MinHeap.MinHeap()

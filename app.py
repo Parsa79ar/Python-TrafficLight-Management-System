@@ -30,12 +30,13 @@ def clock():
     checkShift()
 
 def attendance(TL_id, national_code):
+    cr = crossRoads.getCrossRoad(TL_id)
     if cr.value.NC_agent != 0:
         agent = agents.getAgent(cr.value.NC_agent)
-        attend_time = ((hour * 3600) + (minute * 60) + second) - agent.value.shift.storage[0].value[1]
+        attend_time = int(((hour * 3600) + (minute * 60) + second) - agent.value.shift.storage[0].value[1])
         agent.value.attendance_time += attend_time
+        agent.value.status = 0
         agent.value.shift.removeMin()
-    cr = crossRoads.getCrossRoad(TL_id)
     cr.value.NC_agent = national_code
     agent = agents.getAgent(national_code)
     agent.value.shift.storage[0].value[1] = ((hour * 3600) + (minute * 60) + second)
@@ -430,7 +431,7 @@ class AgentUi(tkinter.Toplevel):
         self.Shifttrv.column(3, width=150, anchor="center")
         self.Shifttrv.heading(1, text="چهارراه ID")
         self.Shifttrv.heading(2, text="کد ملی مامور")
-        self.Shifttrv.heading(3, text="زمان شیفت")
+        self.Shifttrv.heading(3, text="ساعت شیفت")
         self.Shifttrv.bind('<Double 1>', self.getrow)
 
         # Shift Data Section
@@ -444,7 +445,7 @@ class AgentUi(tkinter.Toplevel):
         self.sent2 = tkinter.Entry(self.wrapper5)
         self.sent2.grid(row=1, column=1, padx=10, pady=12)
     
-        self.slbl3 = tkinter.Label(self.wrapper5, text="زمان شیفت : ")
+        self.slbl3 = tkinter.Label(self.wrapper5, text="ساعت شیفت : ")
         self.slbl3.grid(row=2, column=0, padx=10)
         self.slbl4 = tkinter.Label(self.wrapper5, text="ساعت - دقیقه")
         self.slbl4.grid(row=2, column=1, padx=10)
@@ -458,13 +459,12 @@ class AgentUi(tkinter.Toplevel):
         self.sent4.grid(row=4, column=1, padx=10, pady=5)
 
         self.s_add_btn = tkinter.Button(self.wrapper5, text="ثبت شیفت", command=self.add_shift, padx=10, pady=5)
-        self.s_up_btn = tkinter.Button(self.wrapper5, text="آپدیت شیفت", command=self.update_shift, padx=5, pady=5, state="disabled")
         self.s_add_btn.grid(row=0, column=3, padx=25, pady=5)
-        self.s_up_btn.grid(row=1, column=3, padx=25, pady=5)
 
         self.geometry("970x920")
         self.title("مدیریت مامورها")
         self.update()
+        self.s_update()
 
 
     """---------- Agent Methods Ui -----------"""
@@ -561,10 +561,6 @@ class AgentUi(tkinter.Toplevel):
                 if d:
                     self.Shifttrv.insert('', 'end', values=(d.value[0], i.value.national_code, d.key))
         self.Shifttrv.after(400, self.update)
-
-
-    def update_shift():
-        pass
 
 
 

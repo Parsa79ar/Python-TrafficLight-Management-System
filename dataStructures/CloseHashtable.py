@@ -10,43 +10,6 @@ class HashTable:
         self.size = len(self.data)
         print(self.data)
 
-    def __incrsize(self):
-        self.size = self.size * 2
-        tmplist = [0] * self.size
-        for d in self.data:
-            if d == 0:
-                continue
-            elif d == "deleted":
-                continue
-            else:
-                i = 0
-                while True:
-                    hash_index = self.__get_hash_index(d.key, i)
-                    if tmplist[hash_index] == 0:
-                        tmplist[hash_index] = d
-                        break
-                    i += 1
-        self.data = tmplist
-
-    def __decrsize(self):
-        if self.size / 2 >= 10:
-            self.size = int(self.size / 2)
-            tmplist = [0] * self.size
-            for d in self.data:
-                if d == 0:
-                    continue
-                elif d == "deleted":
-                    continue
-                else:
-                    i = 0
-                    while True:
-                        hash_index = self.__get_hash_index(d.key, i)
-                        if tmplist[hash_index] == 0:
-                            tmplist[hash_index] = d
-                            break
-                        i += 1
-            self.data = tmplist
-
     def __get_hash_index(self, key, i):
         return (key + i) % self.size
 
@@ -102,3 +65,40 @@ class HashTable:
                 i += 1
             elif self.data[hash_index] == 0:
                 return "Hash key does not exist"
+
+    def __incrsize(self):
+        self.size = self.size * 2
+        tmplist = [0] * self.size
+        for d in self.data:
+            if d == 0:
+                continue
+            elif d == "deleted":
+                continue
+            else:
+                i = 0
+                while True:
+                    hash_index = self.__get_hash_index(d.key, i)
+                    if tmplist[hash_index] == 0:
+                        tmplist[hash_index] = d
+                        break
+                    i += 1
+        self.data = tmplist
+
+    def __decrsize(self):
+        if self.size / 2 >= 10:
+            self.size = int(self.size / 2)
+            tmplist = [0] * self.size
+            for d in self.data:
+                if d == 0:
+                    continue
+                elif d == "deleted":
+                    continue
+                else:
+                    i = 0
+                    while True:
+                        hash_index = self.__get_hash_index(d.key, i)
+                        if tmplist[hash_index] == 0:
+                            tmplist[hash_index] = d
+                            break
+                        i += 1
+            self.data = tmplist
